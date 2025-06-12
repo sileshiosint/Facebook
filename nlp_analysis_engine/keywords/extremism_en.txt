@@ -1,0 +1,6 @@
+# Add one keyword or phrase per line
+extremist_term1
+radical_phrase
+join_the_cause_xyz
+overthrow_government
+lone_wolf_action

@@ -1,0 +1,6 @@
+# Add one keyword or phrase per line
+hateful_word1
+another_slur
+kill_all_x
+despicable_group_y
+violence_against_z

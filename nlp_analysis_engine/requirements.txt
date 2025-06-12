@@ -1,0 +1,9 @@
+pymongo
+python-dotenv
+# For Language Detection
+langdetect
+# For NLP tasks (NER, Sentiment) - SpaCy is powerful
+spacy
+# Placeholder for translation (optional, can be resource-heavy)
+# googletrans-py # or other library
+vaderSentiment
