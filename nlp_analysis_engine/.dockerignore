@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.env.*
+.env.example
+
+.pytest_cache/
+.mypy_cache/
+*.log
+*.logs
+
+# If SpaCy models are downloaded locally into a 'models' directory for dev,
+# and you don't want to include that local cache in the Docker image context
+# (preferring the RUN python -m spacy download en_core_web_sm step in Dockerfile)
+models/
+spacy_models/
+.spacy/
+
+# IDE and OS specific
+.vscode/
+.idea/
+*.DS_Store
+*~
+# build artifacts if any
+build/
+dist/

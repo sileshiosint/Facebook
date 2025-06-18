@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.env.*
+.env.example
+
+.pytest_cache/
+.mypy_cache/
+*.log
+*.logs
+
+# Exclude facebook_scraper's potentially large or sensitive local files
+# if they were ever to be present in the source directory during copy.
+# The Dockerfile copies ../facebook_scraper explicitly, so this .dockerignore
+# primarily affects what's in the task_scheduler's own directory context.
+# However, if `COPY . /app/task_scheduler` was used after copying scraper,
+# it might re-copy things. The current Dockerfile structure is fine.
+
+# IDE and OS specific
+.vscode/
+.idea/
+*.DS_Store
+*~
+# build artifacts if any
+build/
+dist/

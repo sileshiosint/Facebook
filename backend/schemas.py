@@ -117,6 +117,18 @@ class User(UserBase): # Inherits username, email
 class UserInDB(UserInDBBase): # Inherits all fields from UserInDBBase
     pass
 
+# Model for user data stored in and retrieved from DB by auth logic
+class UserInDB(UserInDBBase): # Inherits all fields from UserInDBBase
+    pass
+
+class PostsResponse(BaseModel):
+    data: List[Post]
+    total_count: int
+
+class ProfilesResponse(BaseModel):
+    data: List[Profile]
+    total_count: int
+
 # --- Analytics Schemas ---
 class RiskCategoryCount(BaseModel):
     category: str

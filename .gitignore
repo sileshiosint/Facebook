@@ -1,0 +1,128 @@
+# .gitignore (Project Root)
+
+# General
+*.log
+*.logs
+*.DS_Store
+*.tmp
+*.swp
+*.swo
+coverage.xml
+.coverage
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.spec
+# Keep .cfg and .ini if they are part of intended configuration (e.g. setup.cfg)
+# *.cfg
+# *.ini
+*.db
+*.sqlite3
+pip-wheel-metadata/
+wheels/
+develop-eggs/
+eggs/
+sdist/
+parts/
+var/ # if used for temp data, logs, etc. not version controlled
+
+# Virtual environments
+env/
+venv/
+ENV/
+VENV/
+.venv/
+# IMPORTANT: Local environment configurations should NOT be committed.
+# .env is for local secrets and specific settings.
+.env
+# Allow specific .env files if they are examples or for non-sensitive CI/CD overrides
+# !.env.example
+# !.env.ci
+# However, .env.* that contain secrets should be ignored:
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# If .env.development and .env.production in frontend/ are just templates or non-sensitive, they can be committed.
+# The current frontend .env files seem to be for configuring VITE_API_BASE_URL which is fine.
+
+# IDE / Editor specific
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+nbproject/
+*.komodoproject
+*.project
+project.xcworkspace/
+xcuserdata/
+*.tmPreferences
+
+# Node.js / Frontend
+# These are often specific to the frontend directory, but good to have root level too
+# if a root package.json or node_modules ever appears (bad practice usually)
+node_modules/
+# /frontend/node_modules/ # More specific path
+# /frontend/dist/       # More specific path
+# /frontend/.env        # More specific path for frontend local env
+# /frontend/.env.*      # More specific path
+# !/frontend/.env.example # Ensure example env files are NOT ignored
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnp.*
+frontend/.next/ # If Next.js was used
+frontend/coverage/
+frontend/.vite/ # Vite cache directory
+# .eslintcache # Often project root if linting whole project
+
+# Docker
+# (Usually Dockerfiles and docker-compose.yml are committed)
+# But if you have local docker build caches or contexts you want to ignore:
+# .docker/
+# docker-compose.override.yml # Often used for local overrides, good to ignore if it contains secrets/local paths
+
+# OS specific
+Thumbs.db
+.AppleDouble
+.LSOverride
+.localized
+
+# Specific to this project if any temp files are generated at root
+# e.g., temp_data/
+# output/
+# screenshots from scraper (if any saved locally during dev)
+*.png
+
+# Cache files from test runners
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# SpaCy model cache if downloaded outside nlp_analysis_engine/models
+# (already in nlp_analysis_engine/.dockerignore, but can be here too)
+# .spacy/
+
+# Files from the facebook_scraper that might be generated during local runs
+facebook_scraper/login_error_screenshot.png
+facebook_scraper/critical_error_screenshot.png
+facebook_scraper/login_uncertain_screenshot.png
+facebook_scraper/search_results_*.png
+facebook_scraper/group_page_timeout_*.png
+facebook_scraper/no_posts_found_*.png
+
+# Task Scheduler specific (if it ever creates local files)
+# task_scheduler/some_local_file.xyz
+
+# NLP Engine specific (if it ever creates local files beyond models dir)
+# nlp_analysis_engine/some_local_file.xyz

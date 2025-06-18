@@ -78,7 +78,7 @@ async def read_users_me(current_user: schemas.UserInDB = Depends(auth.get_curren
 
 
 # --- Posts Endpoints ---
-@app.get("/posts/", response_model=List[schemas.Post])
+@app.get("/posts/", response_model=schemas.PostsResponse) # Changed response_model
 async def read_posts(
     skip: int = 0,
     limit: int = 20,
@@ -110,7 +110,8 @@ async def read_posts(
         entity_text=entity_text, entity_label=entity_label,
         sort_by=sort_by, sort_order=order
     )
-    return posts
+    # posts is now a dict {"posts": list_of_posts, "total_count": count}
+    return schemas.PostsResponse(data=posts["posts"], total_count=posts["total_count"])
 
 
 @app.get("/posts/{post_id}", response_model=schemas.Post)
@@ -128,7 +129,7 @@ async def read_post_by_id( # Renamed for clarity
     return db_post
 
 # --- Profiles Endpoints ---
-@app.get("/profiles/", response_model=List[schemas.Profile])
+@app.get("/profiles/", response_model=schemas.ProfilesResponse) # Updated response_model
 async def read_profiles_endpoint(
     skip: int = 0,
     limit: int = 10,
@@ -138,8 +139,9 @@ async def read_profiles_endpoint(
 ):
     if db is None:
         raise HTTPException(status_code=503, detail="Database connection not available.")
-    profiles = crud.get_profiles_from_db(db, skip=skip, limit=limit, keyword=keyword)
-    return profiles
+    profiles_data = crud.get_profiles_from_db(db, skip=skip, limit=limit, keyword=keyword)
+    # profiles_data is now a dict {"profiles": list_of_profiles, "total_count": count}
+    return schemas.ProfilesResponse(data=profiles_data["profiles"], total_count=profiles_data["total_count"])
 
 @app.get("/profiles/{profile_id}", response_model=schemas.Profile)
 async def read_profile_by_id(

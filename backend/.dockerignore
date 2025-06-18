@@ -1,0 +1,28 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.env.*
+.env.example
+# exclude .env.example as well, as actual env vars will be injected
+# or it can be included if it's just a template with no secrets
+
+*.db
+*.sqlite3
+.pytest_cache/
+.mypy_cache/
+*.log
+*.logs
+
+# IDE and OS specific
+.vscode/
+.idea/
+*.DS_Store
+*~
+# build artifacts if any
+build/
+dist/

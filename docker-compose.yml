@@ -1,0 +1,115 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:5.0 # Specify a MongoDB version
+    container_name: osint_mongo
+    ports:
+      - "27017:27017" # Expose MongoDB to host (optional, for direct access during development)
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - osint_network
+    restart: unless-stopped
+    healthcheck: # Added healthcheck for MongoDB
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: osint_backend
+    depends_on:
+      mongo: # Simplified dependency to wait for healthcheck
+        condition: service_healthy
+    ports:
+      - "8000:8000" # Expose FastAPI backend
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017/facebook_data}
+      - DB_NAME=${DB_NAME:-facebook_data}
+      - POSTS_COLLECTION=${POSTS_COLLECTION:-posts}
+      - PROFILES_COLLECTION=${PROFILES_COLLECTION:-profiles}
+      - USERS_COLLECTION=${USERS_COLLECTION:-users}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is not set} # Ensure SECRET_KEY is set in .env
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+    networks:
+      - osint_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: osint_frontend
+    ports:
+      - "8080:80" # Changed host port to 8080 to avoid conflict if host already uses 80
+    depends_on:
+      - backend
+    # Nginx config inside frontend/Dockerfile proxies /api/v1 to backend:8000
+    # VITE_API_BASE_URL in frontend/.env.production should be /api/v1
+    # The nginx.default.conf location block for /api/v1/ should proxy_pass to http://backend:8000
+    networks:
+      - osint_network
+    restart: unless-stopped
+
+  scheduler:
+    build:
+      context: ./task_scheduler
+      dockerfile: Dockerfile
+    container_name: osint_scheduler
+    depends_on:
+      mongo:
+        condition: service_healthy
+      # backend: # Not directly calling backend API in current design
+        # condition: service_started # Or service_healthy if backend has a healthcheck
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017/facebook_data}
+      - DB_NAME=${DB_NAME:-facebook_data}
+      - POSTS_COLLECTION=${POSTS_COLLECTION:-posts}
+      # PROFILES_COLLECTION is not used by scheduler/scraper directly
+      - FACEBOOK_EMAIL=${FACEBOOK_EMAIL:?FACEBOOK_EMAIL is not set in .env}
+      - FACEBOOK_PASSWORD=${FACEBOOK_PASSWORD:?FACEBOOK_PASSWORD is not set in .env}
+      - SCHEDULE_INTERVAL_MINUTES=${SCHEDULE_INTERVAL_MINUTES:-120}
+      - PROXIES_LIST=${PROXIES_LIST:-""}
+      # For undetected_chromedriver, sometimes it helps to specify display
+      # ENV DISPLAY=:99
+    volumes: # Added to potentially persist chromedriver downloads if needed, though usually not required
+      - scheduler_cache:/root/.cache/selenium
+    networks:
+      - osint_network
+    restart: unless-stopped
+
+  nlp_engine:
+    build:
+      context: ./nlp_analysis_engine
+      dockerfile: Dockerfile
+    container_name: osint_nlp_engine
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017/facebook_data}
+      - DB_NAME=${DB_NAME:-facebook_data}
+      - POSTS_COLLECTION=${POSTS_COLLECTION:-posts}
+    volumes: # Added to persist SpaCy model downloads across container restarts if not baked into image
+      - spacy_models:/root/.cache/spacy
+    networks:
+      - osint_network
+    restart: unless-stopped
+
+volumes:
+  mongo_data: # Persists MongoDB data
+    driver: local
+  scheduler_cache: # Optional cache for selenium/chromedriver
+    driver: local
+  spacy_models: # Persists SpaCy model downloads
+    driver: local
+
+networks:
+  osint_network:
+    driver: bridge

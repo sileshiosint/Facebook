@@ -47,7 +47,7 @@ def get_posts_from_db(
     entity_label: Optional[str] = None,
     sort_by: str = "post_time",
     sort_order: int = -1
-) -> List[schemas.Post]: # Return list of Pydantic models
+) -> Dict[str, Any]: # Return a dictionary with posts and total_count
 
     query: Dict[str, Any] = {}
 
@@ -91,9 +91,13 @@ def get_posts_from_db(
     if sort_order not in [-1, 1]:
         sort_order = -1
 
+    # Get total count before applying skip and limit
+    total_count = db[POSTS_COLLECTION].count_documents(query)
+
     posts_cursor = db[POSTS_COLLECTION].find(query).sort(sort_by, sort_order).skip(skip).limit(limit)
 
-    return [schemas.Post(**post) for post in posts_cursor]
+    results = [schemas.Post(**post) for post in posts_cursor]
+    return {"posts": results, "total_count": total_count}
 
 
 def get_post_by_id_from_db(db: Database, post_id: str) -> Optional[schemas.Post]:
@@ -113,13 +117,16 @@ def get_profiles_from_db(
     skip: int = 0,
     limit: int = 10,
     keyword: Optional[str] = None
-) -> List[schemas.Profile]:
+) -> Dict[str, Any]: # Return a dictionary with profiles and total_count
     query = {}
     if keyword:
         query["user_name"] = {"$regex": keyword, "$options": "i"}
 
+    total_count = db[PROFILES_COLLECTION].count_documents(query)
     profiles_cursor = db[PROFILES_COLLECTION].find(query).skip(skip).limit(limit)
-    return [schemas.Profile(**profile) for profile in profiles_cursor]
+
+    results = [schemas.Profile(**profile) for profile in profiles_cursor]
+    return {"profiles": results, "total_count": total_count}
 
 def get_profile_by_id_from_db(db: Database, profile_id: str) -> Optional[schemas.Profile]:
     try:
